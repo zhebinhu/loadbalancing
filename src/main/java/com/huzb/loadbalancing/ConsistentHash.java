@@ -6,34 +6,53 @@ package com.huzb.loadbalancing;
  * @date 2018/4/21
  */
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import org.junit.jupiter.api.Test;
+
+import java.util.*;
 
 public class ConsistentHash<T> {
-    private final HashFunction hashFunction;
+    private final HashFunction hashFunction = new HashFunction();
     /**
      * 节点的复制因子,实际节点个数 * numberOfReplicas =
      */
-    private final int numberOfReplicas;
+    private final int numberOfReplicas = 5;
     /**
      * 存储虚拟节点的hash值到真实节点的映射
      */
     private final SortedMap<Long, T> circle = new TreeMap<Long, T>();
 
-    public ConsistentHash(HashFunction hashFunction, int numberOfReplicas,
-                          Collection<T> nodes) {
-        this.hashFunction = hashFunction;
-        this.numberOfReplicas = numberOfReplicas;
-        for (T node : nodes) {
-            add(node);
-        }
+    /**
+     * 单例模式
+     */
+    private volatile static ConsistentHash consistentHash;
+
+    private ConsistentHash() {
     }
+
+    public static ConsistentHash getConsistentHash() {
+        if (consistentHash == null) {
+            synchronized (ConsistentHash.class) {
+                if (consistentHash == null) {
+                    consistentHash = new ConsistentHash();
+                    consistentHash.add("1");
+                    consistentHash.add("2");
+                    consistentHash.add("3");
+                    consistentHash.add("4");
+                    consistentHash.add("5");
+                }
+            }
+        }
+        return consistentHash;
+    }
+
+//    public ConsistentHash(HashFunction hashFunction, int numberOfReplicas,
+//                          Collection<T> nodes) {
+//        this.hashFunction = hashFunction;
+//        this.numberOfReplicas = numberOfReplicas;
+//        for (T node : nodes) {
+//            add(node);
+//        }
+//    }
 
     public void add(T node) {
         for (int i = 0; i < numberOfReplicas; i++) {
@@ -116,15 +135,17 @@ public class ConsistentHash<T> {
         }
     }
 
-    public static void main(String[] args) {
-        Set<String> nodes = new HashSet<String>();
-        nodes.add("A");
-        nodes.add("B");
-        nodes.add("C");
-        ConsistentHash<String> consistentHash = new ConsistentHash<String>(new HashFunction(), 2, nodes);
-        consistentHash.add("D");
-        System.out.println("hash circle size: " + consistentHash.getSize());
-        System.out.println("location of each node are follows: ");
-        consistentHash.testBalance();
+    @Test
+    public void test() {
+        ConsistentHash<String> consistentHash = ConsistentHash.getConsistentHash();
+        consistentHash.add("1");
+        consistentHash.add("2");
+        consistentHash.add("3");
+        consistentHash.add("4");
+        consistentHash.add("5");
+//        System.out.println("hash circle size: " + consistentHash.getSize());
+//        System.out.println("location of each node are follows: ");
+        System.out.println(consistentHash.get("123"));
+//        consistentHash.testBalance();
     }
 }
