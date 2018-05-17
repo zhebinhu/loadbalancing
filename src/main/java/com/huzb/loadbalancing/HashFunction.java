@@ -8,29 +8,63 @@ package com.huzb.loadbalancing;
  * @date 2018/4/21
  */
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import org.junit.jupiter.api.Test;
+
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 
 public class HashFunction {
-    private MessageDigest md5 = null;
+    //    private static MessageDigest md5 = null;
+    private final static Integer MAX_DATA = 65536;
+    private final static Integer MAX_HASH = 1024;
+    private static Integer[] hashTable = new Integer[MAX_DATA];
 
-    public long hash(String key) {
-        if (md5 == null) {
-            try {
-                md5 = MessageDigest.getInstance("MD5");
-            } catch (NoSuchAlgorithmException e) {
-                throw new IllegalStateException("no md5 algrithm found");
-            }
+    static {
+        for (int i = 0; i < MAX_DATA; i++) {
+            hashTable[i] = (int) (Math.random() * MAX_HASH);
         }
-        md5.reset();
-        md5.update(key.getBytes());
-        byte[] bKey = md5.digest();
+    }
 
-        //具体的哈希函数实现细节--每个字节 & 0xFF 再移位
-        long result = ((long) (bKey[3] & 0xFF) << 24)
-                | ((long) (bKey[2] & 0xFF) << 16
-                | ((long) (bKey[1] & 0xFF) << 8) | (long) (bKey[0] & 0xFF));
-        return result & 0xffffffffL;
+    public static Integer hash(String key) {
+//        if (md5 == null) {
+//            try {
+//                md5 = MessageDigest.getInstance("MD5");
+//            } catch (NoSuchAlgorithmException e) {
+//                throw new IllegalStateException("no md5 algrithm found");
+//            }
+//        }
+//        md5.reset();
+//        md5.update(key.getBytes());
+//        byte[] bKey = md5.digest();
+//
+//        //具体的哈希函数实现细节--每个字节 & 0xFF 再移位
+//        return ((bKey[3] & 0x7F) << 24)
+//                | ((bKey[2] & 0xFF) << 16
+//                | ((bKey[1] & 0xFF) << 8) | bKey[0] & 0xFF);
+//        return key == null ? 0 : key.hashCode();
+        return hashTable[Math.abs(key.hashCode()) & (MAX_DATA - 1)];
+    }
+
+    @Test
+    public void Test() {
+        Cluster cluster = Cluster.getCluster();
+        SortedMap circle = new TreeMap();
+        for (int j = 0; j < 5; j++) {
+            for (int i = 0; i < 5; i++) {
+                /*
+                 * 对于一个实际机器节点 T, 对应 numberOfReplicas 个虚拟节点
+                 * 不同的虚拟节点(i不同)有不同的hash值,但都对应同一个实际机器node
+                 * 虚拟node一般是均衡分布在环上的,数据存储在顺时针方向的虚拟node上
+                 */
+                Integer hashCode = HashFunction.hash(Integer.toString(cluster.getNode(j).hashCode()) + i) % 1024;
+                while (circle.containsKey(hashCode)) {
+                    hashCode = (hashCode + 31) % 1024;
+                }
+                circle.put(hashCode, null);
+                System.out.print(hashCode + " ");
+            }
+            System.out.println();
+        }
     }
 }

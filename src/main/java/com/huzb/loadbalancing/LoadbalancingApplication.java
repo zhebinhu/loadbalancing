@@ -9,4 +9,5 @@ public class LoadbalancingApplication {
     public static void main(String[] args) {
         SpringApplication.run(LoadbalancingApplication.class, args);
     }
+
 }

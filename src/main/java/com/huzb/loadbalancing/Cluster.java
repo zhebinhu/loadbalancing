@@ -1,41 +1,50 @@
 package com.huzb.loadbalancing;
 
-import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 /**
+ * 用于管理Node
+ *
  * @author huzb
  * @version v1.0.0
- * @date 2018/4/22
+ * @date 2018/5/13
  */
-public class Cluster {
-    private HashMap<String, LinkedList> nodes = new HashMap<String, LinkedList>();
+class Cluster {
+    /**
+     * 单例模式
+     */
     private volatile static Cluster cluster;
+    private ArrayList<Node> nodes;
+    private final static Integer NUM_OF_NODE = 5;
 
     private Cluster() {
     }
 
-    public static Cluster getCluster() {
+    static Cluster getCluster() {
         if (cluster == null) {
             synchronized (Cluster.class) {
                 if (cluster == null) {
                     cluster = new Cluster();
-                    cluster.add("1");
-                    cluster.add("2");
-                    cluster.add("3");
-                    cluster.add("4");
-                    cluster.add("5");
+                    cluster.nodes = new ArrayList<>();
+                    for (int i = 0; i < NUM_OF_NODE; i++) {
+                        cluster.nodes.add(new Node("127.0.0.1"+i,80));
+                    }
                 }
             }
         }
         return cluster;
     }
 
-    public void add(String nodeNum) {
-        nodes.put(nodeNum, new LinkedList());
+    Node getNode(Integer serialNumber) {
+        if (serialNumber < NUM_OF_NODE) {
+            return nodes.get(serialNumber);
+        } else {
+            return null;
+        }
     }
 
-    public LinkedList get(String nodeNum) {
-        return nodes.get(nodeNum);
+    Integer getSerialNumber(Node node) {
+        return nodes.indexOf(node);
     }
+
 }
