@@ -10,23 +10,28 @@ package com.huzb.loadbalancing;
 
 import org.junit.jupiter.api.Test;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 
 public class HashFunction {
-    //    private static MessageDigest md5 = null;
-    private final static Integer MAX_DATA = 65536;
-    private final static Integer MAX_HASH = 1024;
+    private static MessageDigest md5 = null;
+    private final static Integer MAX_DATA = 65536 * 8;
+    private final static Integer MAX_HASH = 1024 * 8;
     private static Integer[] hashTable = new Integer[MAX_DATA];
 
     static {
+        SecureRandom s = new SecureRandom();
+        s.setSeed(13);
         for (int i = 0; i < MAX_DATA; i++) {
-            hashTable[i] = (int) (Math.random() * MAX_HASH);
+            hashTable[i] = s.nextInt(MAX_HASH);
         }
     }
 
-    public static Integer hash(String key) {
+    static Integer hash(String key) {
 //        if (md5 == null) {
 //            try {
 //                md5 = MessageDigest.getInstance("MD5");
@@ -42,13 +47,13 @@ public class HashFunction {
 //        return ((bKey[3] & 0x7F) << 24)
 //                | ((bKey[2] & 0xFF) << 16
 //                | ((bKey[1] & 0xFF) << 8) | bKey[0] & 0xFF);
-//        return key == null ? 0 : key.hashCode();
-        return hashTable[Math.abs(key.hashCode()) & (MAX_DATA - 1)];
+        return hashTable[Math.abs(key.hashCode()) % MAX_DATA];
+
     }
 
     @Test
     public void Test() {
-        Cluster cluster = Cluster.getCluster();
+        Cluster cluster = new Cluster(80);
         SortedMap circle = new TreeMap();
         for (int j = 0; j < 5; j++) {
             for (int i = 0; i < 5; i++) {
@@ -59,7 +64,7 @@ public class HashFunction {
                  */
                 Integer hashCode = HashFunction.hash(Integer.toString(cluster.getNode(j).hashCode()) + i) % 1024;
                 while (circle.containsKey(hashCode)) {
-                    hashCode = (hashCode + 31) % 1024;
+                    hashCode = (hashCode + 137) % 1024;
                 }
                 circle.put(hashCode, null);
                 System.out.print(hashCode + " ");

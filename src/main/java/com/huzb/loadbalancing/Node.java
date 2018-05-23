@@ -1,6 +1,7 @@
 package com.huzb.loadbalancing;
 
 import java.util.LinkedList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * 本类模拟服务器节点
@@ -12,35 +13,62 @@ import java.util.LinkedList;
 public class Node {
     private String ipAddress;
     private Integer port;
-    private LinkedList<String> dataQueue;
-    private static final Integer MAX_NUM_OF_DATA = 128;
+    private ConcurrentLinkedQueue<String> dataQueue;
+    private static final Integer MAX_NUM_OF_DATA = 160;
+    private static final Integer MAX_NUM_OF_HIT_QUEUE = 100;
     private Integer load;
+    private ConcurrentLinkedQueue<Boolean> hitQueue;
 
     Node(String ipAddress, Integer port) {
         this.ipAddress = ipAddress;
         this.port = port;
-        this.dataQueue = new LinkedList<String>();
+        this.dataQueue = new ConcurrentLinkedQueue<String>();
         this.load = 0;
+        this.hitQueue = new ConcurrentLinkedQueue<Boolean>();
     }
 
-    @Override
-    public int hashCode() {
-        return HashFunction.hash(ipAddress + ":" + port);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return this.hashCode() == obj.hashCode();
-    }
+//    @Override
+//    public int hashCode() {
+//        return HashFunction.hash(ipAddress + ":" + port);
+//    }
+//
+//    @Override
+//    public boolean equals(Object obj) {
+//        return this.hashCode() == obj.hashCode();
+//    }
 
     Boolean isDataExist(String data) {
         return dataQueue.contains(data);
     }
 
-    public void addData(String data) {
+    void addHitQueue(Boolean hitSuccess) {
+        hitQueue.add(hitSuccess);
+        if (hitQueue.size() > MAX_NUM_OF_HIT_QUEUE) {
+            hitQueue.poll();
+        }
+    }
+
+    Integer getHitRatio() {
+        if (hitQueue.size() == 0) {
+            return 0;
+        }
+        int hitRatio = 0;
+        for (Boolean hitSuccess : hitQueue) {
+            if (hitSuccess) {
+                hitRatio++;
+            }
+        }
+        return hitRatio * 100 / hitQueue.size();
+    }
+
+    public void resetHitRatio() {
+        this.hitQueue = new ConcurrentLinkedQueue<>();
+    }
+
+    void addData(String data) {
         dataQueue.add(data);
         if (dataQueue.size() > MAX_NUM_OF_DATA) {
-            dataQueue.pop();
+            dataQueue.poll();
         }
     }
 

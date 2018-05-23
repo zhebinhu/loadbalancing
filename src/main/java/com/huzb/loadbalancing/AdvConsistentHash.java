@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-public class ConsistentHash<T> {
+public class AdvConsistentHash<T> {
     /**
      * 节点的复制因子,实际节点个数 * numberOfReplicas =
      */
@@ -27,9 +27,9 @@ public class ConsistentHash<T> {
     /**
      * 单例模式
      */
-    private volatile static ConsistentHash<Node> consistentHash;
+    private volatile static AdvConsistentHash<Node> consistentHash;
 
-    private ConsistentHash() {
+    private AdvConsistentHash() {
     }
 
     /**
@@ -37,11 +37,11 @@ public class ConsistentHash<T> {
      *
      * @return
      */
-    static ConsistentHash<Node> getConsistentHash() {
+    static AdvConsistentHash<Node> getConsistentHash() {
         if (consistentHash == null) {
-            synchronized (ConsistentHash.class) {
+            synchronized (AdvConsistentHash.class) {
                 if (consistentHash == null) {
-                    consistentHash = new ConsistentHash<>();
+                    consistentHash = new AdvConsistentHash<>();
                 }
             }
         }
@@ -54,7 +54,8 @@ public class ConsistentHash<T> {
      * @param node
      */
     public void add(T node) {
-        for (int i = 0; i < numberOfReplicas; i++) {
+        int i = 0;
+        while (i < numberOfReplicas) {
             /*
              * 对于一个实际机器节点 T, 对应 numberOfReplicas 个虚拟节点
              * 不同的虚拟节点(i不同)有不同的hash值,但都对应同一个实际机器node
@@ -67,6 +68,7 @@ public class ConsistentHash<T> {
             synchronized (circle) {
                 circle.put(hashCode, node);
             }
+            i++;
         }
     }
 
@@ -126,11 +128,34 @@ public class ConsistentHash<T> {
     }
 
     /**
+     * 更新哈希环
+     *
+     * @return
+     */
+    public void update(String key, T node) {
+        if (circle.isEmpty()) {
+            return;
+        }
+        /*
+         * T 用String来表示,获得node在哈希环中的hashCode
+         */
+        Integer hash = HashFunction.hash(key) % consistentHashLength;
+        /*
+         * 数据映射在两台虚拟机器所在环之间,就需要按顺时针方向寻找机器
+         */
+        if (!circle.containsKey(hash)) {
+            SortedMap<Integer, T> tailMap = circle.tailMap(hash);
+            hash = tailMap.isEmpty() ? circle.firstKey() : tailMap.firstKey();
+        }
+        circle.put(hash, node);
+    }
+
+    /**
      * 功能描述：测试哈希环均匀程度
      */
     @Test
     public void test() {
-        ConsistentHash<Node> consistentHash = ConsistentHash.getConsistentHash();
+        AdvConsistentHash<Node> consistentHash = AdvConsistentHash.getConsistentHash();
         consistentHash.add(new Node("127.0.0.11", 80));
         consistentHash.add(new Node("127.0.0.12", 80));
         consistentHash.add(new Node("127.0.0.13", 80));
