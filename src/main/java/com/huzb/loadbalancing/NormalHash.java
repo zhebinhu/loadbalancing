@@ -9,7 +9,7 @@ import java.util.LinkedList;
  * @version v1.0.0
  * @date 2018/5/19
  */
-public class NormalHash<T> {
+public class NormalHash<T> implements Hash<T>{
     ArrayList<T> nodes;
     /**
      * 单例模式
@@ -36,6 +36,7 @@ public class NormalHash<T> {
         return normalHash;
     }
 
+    @Override
     public void add(T node) {
         synchronized (NormalHash.class) {
             if (!nodes.contains(node)) {
@@ -44,6 +45,7 @@ public class NormalHash<T> {
         }
     }
 
+    @Override
     public void remove(T node) {
         synchronized (NormalHash.class) {
             if (nodes.contains(node)) {
@@ -52,6 +54,7 @@ public class NormalHash<T> {
         }
     }
 
+    @Override
     public T get(String key) {
         return nodes.get(HashFunction.hash(key) % nodes.size());
     }

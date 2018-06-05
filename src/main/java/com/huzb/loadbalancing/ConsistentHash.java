@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-public class ConsistentHash<T> {
+public class ConsistentHash<T> implements Hash<T>{
     /**
      * 节点的复制因子,实际节点个数 * numberOfReplicas =
      */
@@ -48,11 +48,13 @@ public class ConsistentHash<T> {
         return consistentHash;
     }
 
+
     /**
      * 在哈希环中添加节点
      *
      * @param node
      */
+    @Override
     public void add(T node) {
         for (int i = 0; i < numberOfReplicas; i++) {
             /*
@@ -75,6 +77,7 @@ public class ConsistentHash<T> {
      *
      * @param node
      */
+    @Override
     public void remove(T node) {
         ArrayList<Integer> keys = new ArrayList<>();
         for (Map.Entry<Integer, T> entry : circle.entrySet()) {
@@ -98,6 +101,7 @@ public class ConsistentHash<T> {
      * @param key
      * @return
      */
+    @Override
     public T get(String key) {
         if (circle.isEmpty()) {
             return null;

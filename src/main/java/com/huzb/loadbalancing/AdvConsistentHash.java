@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-public class AdvConsistentHash<T> {
+public class AdvConsistentHash<T> implements Hash<T>{
     /**
      * 节点的复制因子,实际节点个数 * numberOfReplicas =
      */
@@ -53,6 +53,7 @@ public class AdvConsistentHash<T> {
      *
      * @param node
      */
+    @Override
     public void add(T node) {
         int i = 0;
         while (i < numberOfReplicas) {
@@ -77,6 +78,7 @@ public class AdvConsistentHash<T> {
      *
      * @param node
      */
+    @Override
     public void remove(T node) {
         ArrayList<Integer> keys = new ArrayList<>();
         for (Map.Entry<Integer, T> entry : circle.entrySet()) {
@@ -100,6 +102,7 @@ public class AdvConsistentHash<T> {
      * @param key
      * @return
      */
+    @Override
     public T get(String key) {
         if (circle.isEmpty()) {
             return null;

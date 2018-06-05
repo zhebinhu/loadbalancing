@@ -27,16 +27,6 @@ public class Node {
         this.hitQueue = new ConcurrentLinkedQueue<Boolean>();
     }
 
-//    @Override
-//    public int hashCode() {
-//        return HashFunction.hash(ipAddress + ":" + port);
-//    }
-//
-//    @Override
-//    public boolean equals(Object obj) {
-//        return this.hashCode() == obj.hashCode();
-//    }
-
     Boolean isDataExist(String data) {
         return dataQueue.contains(data);
     }
@@ -49,7 +39,7 @@ public class Node {
     }
 
     Integer getHitRatio() {
-        if (hitQueue.size() == 0) {
+        if (hitQueue.size() < MAX_NUM_OF_HIT_QUEUE) {
             return 0;
         }
         int hitRatio = 0;
