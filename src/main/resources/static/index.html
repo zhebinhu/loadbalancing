@@ -1,0 +1,70 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <!-- 引入 ECharts 文件 -->
+    <script src="js/echarts.js"></script>
+    <link href="css/buttons.css" rel="stylesheet">
+</head>
+
+<body>
+<!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+<div style="height: 400px">
+    <div id="ave_chart" style="height:100%; width: 29%; display:inline-block;"></div>
+    <div id="ave_hit_chart" style="height:100%; width: 29%; display:inline-block;"></div>
+    <div id="variance_chart" style="height:100%; width: 29%; display:inline-block;"></div>
+</div>
+
+</div>
+<div style="height: 700px">
+    <div style="height:100%; width: 19%; display:inline-block;">
+        <div id="chart00" style="height:40%; width: 100%; display:inline-block;"></div>
+        <div id="chart01" style="height:40%; width: 100%; display:inline-block;"></div>
+        <div align="right">
+            <button class="button button-royal button-rounded button-small" id="remove0">移除</button>
+            <button class="button button-royal button-rounded button-small" id="add0">添加</button>
+        </div>
+    </div>
+    <div style="height:100%; width: 19%; display:inline-block;">
+        <div id="chart10" style="height:40%; width: 100%; display:inline-block;"></div>
+        <div id="chart11" style="height:40%; width: 100%; display:inline-block;"></div>
+        <div align="right">
+            <button class="button button-royal button-rounded button-small" id="remove1">移除</button>
+            <button class="button button-royal button-rounded button-small" id="add1">添加</button>
+        </div>
+    </div>
+    <div style="height:100%; width: 19%; display:inline-block;">
+        <div id="chart20" style="height:40%; width: 100%; display:inline-block;"></div>
+        <div id="chart21" style="height:40%; width: 100%; display:inline-block;"></div>
+        <div align="right">
+            <button class="button button-royal button-rounded button-small" id="remove2">移除</button>
+            <button class="button button-royal button-rounded button-small" id="add2">添加</button>
+        </div>
+    </div>
+    <div style="height:100%; width: 19%; display:inline-block;">
+        <div id="chart30" style="height:40%; width: 100%; display:inline-block;"></div>
+        <div id="chart31" style="height:40%; width: 100%; display:inline-block;"></div>
+        <div align="right">
+            <button class="button button-royal button-rounded button-small" id="remove3">移除</button>
+            <button class="button button-royal button-rounded button-small" id="add3">添加</button>
+        </div>
+    </div>
+    <div style="height:100%; width: 19%; display:inline-block;">
+        <div id="chart40" style="height:40%; width: 100%; display:inline-block;"></div>
+        <div id="chart41" style="height:40%; width: 100%; display:inline-block;"></div>
+        <div align="right">
+            <button class="button button-royal button-rounded button-small" id="remove4">移除</button>
+            <button class="button button-royal button-rounded button-small" id="add4">添加</button>
+        </div>
+    </div>
+
+    <div style="height:100%; display:inline-block;">
+        <button class="button button-royal button-rounded" id="stop">停止</button>
+        <button class="button button-royal button-rounded" id="start">开始</button>
+    </div>
+</div>
+<script src="js/loadbalancing.js"></script>
+
+</body>
+</html>
+
